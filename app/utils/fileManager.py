@@ -3,7 +3,7 @@ from os import walk
 import os
 # TODO: Surement ici mettre l'extracteur de json
 from os.path import splitext
-class FileManager(object):
+class FileManager():
     def __init__(self):
         self.val = None
     def __str__(self):
