@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Django Highcharts Example</title>
+</head>
+<body>
+
+  <div id="container"></div>
+  <script src="https://code.highcharts.com/highcharts.src.js"></script>
+  <script>
+    Highcharts.chart('container', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Historic World Population by Region'
+        },
+        xAxis: {
+            categories: ['% getting your comp']
+        },
+        series: [{
+            name: 'Year 1800',
+            data: []
+        }, {
+            name: 'Year 1900',
+            data: []
+        }, {
+            name: 'Year 2012',
+            data: [100]
+        }]
+    });
+  </script>
+</body>
+</html>
