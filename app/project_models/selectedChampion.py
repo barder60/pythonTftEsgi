@@ -1,6 +1,7 @@
 from app.project_models.champion import Champion
-
-
+from ..utils.fileManager import FileManager
+from easydict import EasyDict as edict
+import json
 class SelectedChampion(Champion):
     def __init__(self, name, cost, traits, pngPath):
         Champion.__init__(name, cost, traits, pngPath)
@@ -15,10 +16,28 @@ class SelectedChampion(Champion):
 
         # TODO costDropRate => récuperer le pourcentage d'obtenir les heros du cout => self.cost
         # TODO avoir le stock de départ du personnage
-        startingStock = 15
-        costDropRate = 25
+        startingStock = self.getStartingStock(self)
+        costDropRate = self.getCostDropRate(self)
 
 
         selectedChampionRemaining = startingStock - (self.otherCount + self.playerCount)
         self.dropRateOfSameCost = selectedChampionRemaining * 100 / stockSameCostRemaining
         self.dropRateOfAll = self.dropRateOfSameCost * costDropRate
+
+    def getStartingStock(self):
+        data = edict(FileManager())
+        with open(data.json.rules, "r") as json_file:
+            dataRules = json.load(json_file)
+            champCounterList = edict(dataRules)
+            # TODO : prevoir erreur de retour pour raison inconnu
+            return champCounterList.champCounter[self.cost - 1]
+
+    def getCostDropRate(self):
+        data = edict(FileManager())
+        # TODO: getThePlayerLevel
+        playerLevel = 4
+        with open(data.json.rules, "r") as json_file:
+            dataRules = json.load(json_file)
+            champCounterList = edict(dataRules)
+            costDropArray = champCounterList.statsByLevel[playerLevel - 1].stats
+            return costDropArray[self.cost - 1]
