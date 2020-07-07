@@ -4,11 +4,14 @@ from easydict import EasyDict as edict
 import json
 class SelectedChampion(Champion):
     def __init__(self, name, cost, traits, pngPath):
-        Champion.__init__(name, cost, traits, pngPath)
+        Champion.__init__(self,name, cost, traits, pngPath)
         self.playerCount = 0
         self.otherCount = 0
         self.dropRateOfAll = 0
         self.dropRateOfSameCost = 0
+
+    def __str__(self):
+        return self.name + " obtenue= " + str(self.playerCount) + " adverse= " + str(self.otherCount)
 
     def updateDropRate(self, playerLevel, stockSameCostRemaining):
         # stockSameCostRemaining => le nombre de perso du meme cout restant

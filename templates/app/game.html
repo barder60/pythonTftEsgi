@@ -14,15 +14,26 @@
     <ul>
         {% for champion in champion_list %}
             <li>
-                <p>
-                    {{ champion }}
-                </p>
                 {% load static %}
-                <img src="{% static champion.pngPath %}" id="{{ champion.name }}" onclick="">
-                </li>
+                <img class="champion" id="champion-{{ champion.name }}" src="{% static champion.pngPath %}">
+            </li>
 
         {%  endfor %}
     </ul>
 
+    <h1>Ma selection</h1>
+        <ul>
+            {% for champion in selectedChampions %}
+                <li>{{ champion }}</li>
+            {%  endfor %}
+        </ul>
 </body>
+{% block javascript %}
+    <script>
+    $(".champion").click(function(e) {
+        console.log(e.target.id)
+    })
+    </script>
+{% endblock %}
+
 </html>

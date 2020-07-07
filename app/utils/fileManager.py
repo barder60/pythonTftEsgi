@@ -34,6 +34,7 @@ def datafileManagerTft():
                 fileManager[extension][name] = os.path.join(dirpath, filename)
     for name, value in fileManager['png'].items():
         pngPath = re.sub(r'.+\\TftProjet', '', value)
+        pngPath = re.sub(r'.+\\pythonTftEsgi', '', value)
         pngPath = re.sub(r'\\','/',pngPath)
         print(pngPath)
         fileManager['png'][name] = pngPath

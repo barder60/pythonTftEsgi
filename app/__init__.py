@@ -2,8 +2,9 @@ from .utils.fileManager import datafileManagerTft
 from .utils.ChampionUtils import parseChampionJson
 from .project_models.selectedChampion import SelectedChampion
 import os
-
-result = parseChampionJson(os.getcwd() + '/ressources/champions.json')
-
-print(SelectedChampion.getStartingStock(result[0]))
-print(SelectedChampion.getCostDropRate(result[0]))
+from easydict import EasyDict as edict
+# fileManager = datafileManagerTft()
+# fileManager = edict(fileManager)
+champions = parseChampionJson(os.getcwd() + '/ressources/champions.json')
+for champion in champions :
+    print(champion)
