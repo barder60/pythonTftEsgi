@@ -1,7 +1,7 @@
 import os
 
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 
 from .project_models.champion import Champion
 from .services.championsService import addSelectedChampions
@@ -26,9 +26,7 @@ def index(request):
 def game(request):
     global selected_champions
 
-    for champ in champions :
-        if champ.name == 'Ahri' :
-            selected_champions = addSelectedChampions(selected_champions, champ)
+
 
     context = {
         'champion_list' : champions,
@@ -37,7 +35,19 @@ def game(request):
     }
     return render(request, 'app/game.html', context)
 
+def new_selected_champion(request):
+    global selected_champions
+    name = request.GET.get('name')
+    for champ in champions :
+        if name == champ.name :
+            selected_champions = addSelectedChampions(selected_champions, champ)
+    context = {
+        'champion_list': champions,
+        'selectedChampions': selected_champions,
+        'championsBoughtByCost': champions_bought_by_cost
+    }
+    return render(request, 'app/game.html', context)
 
 def json_example(request):
     context = {"categories": [75,25,0,0,0]}
-    return render(request, 'app/graphStats.html', context=context);
+    return render(request, 'app/graphStats.html', context=context)
