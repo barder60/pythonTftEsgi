@@ -1,4 +1,4 @@
-
+import re
 from os import walk
 import os
 # TODO: Surement ici mettre l'extracteur de json
@@ -32,5 +32,9 @@ def datafileManagerTft():
             else:
                 fileManager[extension] = {}
                 fileManager[extension][name] = os.path.join(dirpath, filename)
-
+    for name, value in fileManager['png'].items():
+        pngPath = re.sub(r'.+\\TftProjet', '', value)
+        pngPath = re.sub(r'\\','/',pngPath)
+        print(pngPath)
+        fileManager['png'][name] = pngPath
     return fileManager

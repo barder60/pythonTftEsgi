@@ -28,8 +28,5 @@ def game(request):
     return render(request, 'app/game.html', context)
 
 def json_example(request):
-    #test = parseChampionJson(os.getcwd() + '/ressources/champions.json')
-    #for item in test:
-     #   print(item)
     context = {"categories": [75,25,0,0,0]}
     return render(request, 'app/graphStats.html', context=context)
