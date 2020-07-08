@@ -7,26 +7,99 @@
     <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .testimonial-group > .row {
+          overflow-x: auto;
+            flex-wrap: nowrap;
+          white-space: nowrap;
+        }
+        .testimonial-group > .row > .col {
+          display: inline-block;
+          float: none;
+            padding: 2px;
+            background-color: grey;
+            border-radius: 2px;
+        }
+    </style>
+
 </head>
 <body>
     <h1>Let's grind master</h1>
-    
-    <ul>
-        {% for champion in champion_list %}
-            <li>
-                {% load static %}
-                <img class="champion" id="{{ champion.name }}" src="{% static champion.pngPath %}">
-            </li>
+    <div class="container testimonial-group">
+      <div class="row">
+          {% for champion in champion_list %}
+                <div class="col">
+                    {% load static %}
+                    <img class="champion" id="{{ champion.name }}" src="{% static champion.pngPath %}">
+                </div>
 
-        {%  endfor %}
-    </ul>
-
-    <h1>Ma selection</h1>
-        <ul>
-            {% for champion in selectedChampions %}
-                <li>{{ champion }}</li>
             {%  endfor %}
-        </ul>
+      </div>
+    </div>
+    <div class="row">
+        <div class="col-3">
+            <h1>Ma selection</h1>
+            <ul class="list-group">
+                {% for champion in selectedChampions %}
+                    <li class="list-group-item">
+                        <div class="row">
+                            <div class="col-3">
+                                {% load static %}
+                                <img class="champion" id="{{ champion.name }}" src="{% static champion.pngPath %}">
+                            </div>
+                            <div class="col-2">
+                                <button type="button" class="btn btn-primary" style="width: 34px">+</button>
+                                <br>
+                                <button type="button" class="btn btn-primary" style="width: 34px;margin-top: 4px">-</button>
+                            </div>
+                            <div class="col-2">
+                                Moi
+                                <br>
+                                {{ champion.playerCount }}
+                            </div>
+                            <div class="col-2">
+                                <button type="button" class="btn btn-primary" style="width: 34px">+</button>
+                                <br>
+                                <button type="button" class="btn btn-primary" style="width: 34px;margin-top: 4px">-</button>
+                            </div>
+                            <div class="col-2" style="text-align: center">
+                                Adverses
+                                <br>
+                                {{ champion.otherCount }}
+                            </div>
+                        </div>
+                    </li>
+                {%  endfor %}
+            </ul>
+        </div>
+        <div class="col-6">
+
+        </div>
+        <div class="col-3">
+            <h1>Champions achetés :</h1>
+            <div class="container">
+                <ul class="list-group">
+                    {% for cost in championsBoughtByCost %}
+                        <li class="list-group-item">
+                            <div class="row">
+                                <div class="col-3">
+                                    {{ forloop.counter }} &#9733; : {{ cost }}
+                                </div>
+                                <div class="col-3" style="margin-right: 5px">
+                                    <button type="button" class="btn btn-primary">Augmenter</button>
+                                </div>
+                                <div class="col-3">
+                                    <button type="button" class="btn btn-primary">Réduire</button>
+                                </div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
 </body>
 {% block javascript %}
     <script>
