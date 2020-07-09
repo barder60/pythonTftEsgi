@@ -175,20 +175,24 @@
             type: 'column'
         },
         title: {
-            text: 'Historic World Population by Region'
+            text: 'Probabilité d`obtenir chaque champion de ma team en 1 roll'
         },
         xAxis: {
-            categories: ['% getting your comp']
+            categories: ['blitzcrank','cassio'],
+            crosshair: true
+        },
+        yAxis: {min: 0, max:100,tickInterval: 25,
+              title: {
+                  text: "pourcentage"
+              },
+              labels: {
+                  format: '{value}%',
+              }
+
         },
         series: [{
-            name: 'Year 1800',
-            data: []
-        }, {
-            name: 'Year 1900',
-            data: []
-        }, {
-            name: 'Year 2012',
-            data: [100]
+            name: 'blitzcrank',
+            data: [25]
         }]
     });
   </script>
