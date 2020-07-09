@@ -19,8 +19,7 @@ def index(request):
 
 def game(request):
     global selected_champions
-
-
+    print(selected_champions)
 
     context = {
         'champion_list' : champions,
@@ -34,7 +33,8 @@ def new_selected_champion(request):
     name = request.GET.get('name')
     for champ in champions :
         if name == champ.name :
-            selected_champions = addSelectedChampions(selected_champions, champ)
+            addSelectedChampions(selected_champions, champ)
+
     context = {
         'champion_list': champions,
         'selectedChampions': selected_champions,
@@ -63,6 +63,47 @@ def update_champion_bought(request):
 
     return JsonResponse({'cost': resource[2], 'value': str(champions_bought_by_cost[int(resource[2]) - 1])}, status=200)
 
+def champion_in_team_update(request):
+    global selected_champions
+    resource = request.GET.get('name')
+    resource = resource.split('-')
+
+    if len(resource) == 3:
+        champion = next((champion for champion in selected_champions if champion.name == resource[2]), None)
+        if champion is not None:
+            if resource[0] == 'inc':
+                if get_starting_stock_of_cost(champion.cost) - champion.playerCount - champion.otherCount > 0:
+                    champion.playerCount += 1
+                else:
+                    return HttpResponse("", status=416)
+            elif resource[0] == 'dec':
+                if champion.playerCount != 0:
+                    champion.playerCount -= 1
+                else:
+                    return HttpResponse("", status=416)
+
+
+    return JsonResponse({'name': resource[2], 'value': champion.playerCount}, status=200)
+
+def champion_in_enemies_update(request):
+    global selected_champions
+    resource = request.GET.get('name')
+    resource = resource.split('-')
+    if len(resource) == 3:
+        champion = next((champion for champion in selected_champions if champion.name == resource[2]), None)
+        if champion is not None:
+            if resource[0] == 'inc':
+                if get_starting_stock_of_cost(champion.cost) - champion.playerCount - champion.otherCount > 0:
+                    champion.otherCount += 1
+                else:
+                    return HttpResponse("", status=416)
+            elif resource[0] == 'dec':
+                if champion.otherCount != 0:
+                    champion.otherCount -= 1
+                else:
+                    return HttpResponse("", status=416)
+
+    return JsonResponse({'name': resource[2], 'value': champion.otherCount}, status=200)
 
 def json_example(request):
     context = {"categories": [75,25,0,0,0]}

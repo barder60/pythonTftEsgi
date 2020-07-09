@@ -50,25 +50,24 @@
                                 <img class="champion" id="{{ champion.name }}" src="{% static champion.pngPath %}">
                             </div>
                             <div class="col-2">
-                                <button type="button" onclick="incChampField(`number-in-team-{{ champion.name }}`)" class="btn btn-primary" style="width: 34px">+</button>
+                                <button type="button"  class="btn btn-primary number-inTeam" id="inc-inTeam-{{ champion.name }}" style="width: 34px">+</button>
                                 <br>
-                                <button type="button" onclick="dscChampField(`number-in-team-{{ champion.name }}`)" class="btn btn-primary" style="width: 34px;margin-top: 4px">-</button>
+                                <button type="button"  class="btn btn-primary number-inTeam" id="dec-inTeam-{{ champion.name }}" style="width: 34px;margin-top: 4px">-</button>
                             </div>
                             <div class="col-2">
                                 Moi
                                 <br>
-                               <input style="border: none; background:none;" type="text" id="number-in-team-{{ champion.name }}" value="{{ champion.playerCount }}"/>
+                                <div id="number-inTeam-{{ champion.name }}">{{ champion.playerCount }}</div>
                             </div>
                             <div class="col-2">
-                                <button type="button" onclick="incChampField(`number-in-enemies-{{ champion.name }}`)" class="btn btn-primary" style="width: 34px">+</button>
+                                <button type="button" class="btn btn-primary number-inEnemies" id="inc-inEnemies-{{ champion.name }}" style="width: 34px">+</button>
                                 <br>
-                                <button type="button" onclick="dscChampField(`number-in-enemies-{{ champion.name }}`)" class="btn btn-primary" style="width: 34px;margin-top: 4px">-</button>
+                                <button type="button" class="btn btn-primary number-inEnemies" id="dec-inEnemies-{{ champion.name }}" style="width: 34px;margin-top: 4px">-</button>
                             </div>
                             <div class="col-2" style="text-align: center">
                                 Adverses
                                 <br>
-                                <input style="border: none; background:none;" type="text" id="number-in-enemies-{{ champion.name }}" value="{{ champion.otherCount }}"/>
-
+                                <div id="number-inEnemies-{{ champion.name }}">{{ champion.otherCount }}</div>
                             </div>
                             <div class="col-1" >
                                 <button type="button" class="btn btn-danger" style="width: 34px;">X</button>
@@ -135,49 +134,39 @@
                 alert("out of bound");
             }
         });
-    })
+    });
 
+    $(".number-inEnemies").click(function(e) {
+        $.ajax({
+            url: 'championInEnemies/update',
+            data : {
+                'name': e.target.id
+            },
+            success: function (data) {
+                id ="number-inEnemies-"+data.name
+                document.getElementById(id).innerHTML = data.value;
+            },
+            error: function (response) {
+                alert("out of bound");
+            }
+        });
+    });
 
-    function incChampField(idNbChamp) {
-        let value = parseInt(document.getElementById(idNbChamp).value, 10);
-        value = isNaN(value) ? 0 : value;
-        value++;
-        document.getElementById(idNbChamp).value = value;
-        // requete pour update ennemies champ
-        if(/number-in-enemies/gi.test(idNbChamp)){
-
-        }
-        // requete pour update myteam champ
-        if(/number-in-team/gi.test(idNbChamp)){
-
-        }
-        // requete pour update ennemies champ
-        if(/number-in-remains/gi.test(idNbChamp)){
-
-        }
-    }
-
-    function dscChampField(idNbChamp) {
-        let value = parseInt(document.getElementById(idNbChamp).value, 10);
-        if(value === 0) document.getElementById(idNbChamp).value = value;
-        else {
-            value = isNaN(value) ? 0 : value;
-            value--;
-            document.getElementById(idNbChamp).value = value;
-        }
-        // requete pour update ennemies champ
-        if(/number-in-enemies/gi.test(idNbChamp)){
-
-        }
-        // requete pour update myteam champ
-        if(/number-in-team/gi.test(idNbChamp)){
-
-        }
-        // requete pour update ennemies champ
-        if(/number-in-remains/gi.test(idNbChamp)){
-
-        }
-    }
+    $(".number-inTeam").click(function(e) {
+        $.ajax({
+            url: 'championInTeam/update',
+            data : {
+                'name': e.target.id
+            },
+            success: function (data) {
+                id = "number-inTeam-"+data.name;
+                document.getElementById(id).innerHTML = data.value;
+            },
+            error: function (response) {
+                alert("out of bound");
+            }
+        });
+    });
     </script>
     <script src="https://code.highcharts.com/highcharts.src.js"></script>
   <script>
