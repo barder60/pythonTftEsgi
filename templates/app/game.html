@@ -9,6 +9,31 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 </head>
 <body>
+<div id="container"></div>
+  <script src="https://code.highcharts.com/highcharts.src.js"></script>
+  <script>
+    Highcharts.chart('container', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Historic World Population by Region'
+        },
+        xAxis: {
+            categories: ['% getting your comp']
+        },
+        series: [{
+            name: 'Year 1800',
+            data: []
+        }, {
+            name: 'Year 1900',
+            data: []
+        }, {
+            name: 'Year 2012',
+            data: [100]
+        }]
+    });
+  </script>
     <h1>Let's grind master</h1>
     
     <ul>
@@ -20,11 +45,13 @@
 
         {%  endfor %}
     </ul>
-
     <h1>Ma selection</h1>
         <ul>
             {% for champion in selectedChampions %}
-                <li>{{ champion }}</li>
+                <li>{{ champion.name }}</li>
+                <input type="text" id="number-in-team-{{ champion.name }}" value="0"/>
+                <input type="button" onclick="incChampInTeam('number-in-team-{{ champion.name }}' )" value="+" />
+                <input type="button" onclick="dscChampInTeam('number-in-team-{{ champion.name }}' )" value="-" />
             {%  endfor %}
         </ul>
 </body>
@@ -41,7 +68,24 @@
             }
         });
     })
+    function incChampInTeam(idNbChamp) {
+        let value = parseInt(document.getElementById(idNbChamp).value, 10);
+        value = isNaN(value) ? 0 : value;
+        value++;
+        document.getElementById(idNbChamp).value = value;
+    }
+
+    function dscChampInTeam(idNbChamp) {
+        let value = parseInt(document.getElementById(idNbChamp).value, 10);
+        if(value === 0) document.getElementById(idNbChamp).value = value;
+        else {
+            value = isNaN(value) ? 0 : value;
+            value--;
+            document.getElementById(idNbChamp).value = value;
+        }
+    }
     </script>
+
 {% endblock %}
 
 </html>
