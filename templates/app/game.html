@@ -132,24 +132,24 @@
                     '                                <img class="champion" id="' + inserted_champion['name'] + '" src="/static' + inserted_champion['pngPath'] + '">' +
                     '                            </div>' +
                     '                            <div class="col-2">' +
-                    '                                <button type="button" onclick="incChampField(`number-in-team-' + inserted_champion['name'] + '`)" class="btn btn-primary" style="width: 34px">+</button>' +
+                    '                                <button type="button" onclick="updateNumberInTeam(\'inc-inTeam-' + inserted_champion['name'] + '\')" id="inc-inTeam-' + inserted_champion['name'] + '" class="btn btn-primary number-inTeam" style="width: 34px">+</button>' +
                     '                                <br>' +
-                    '                                <button type="button" onclick="dscChampField(`number-in-team-' + inserted_champion['name'] + '`)" class="btn btn-primary" style="width: 34px;margin-top: 4px">-</button>' +
+                    '                                <button type="button" onclick="updateNumberInTeam(\'dec-inTeam-' + inserted_champion['name'] + '\')" id="dec-inTeam-' + inserted_champion['name'] + '" class="btn btn-primary number-inTeam" style="width: 34px;margin-top: 4px">-</button>' +
                     '                            </div>' +
                     '                            <div class="col-2">' +
                     '                                Moi' +
                     '                                <br>' +
-                    '                               <input style="border: none; background:none;" type="text" id="number-in-team-' + inserted_champion['name'] + '" value="' + inserted_champion['playerCount'] + '"/>' +
+                    '                               <div id="number-inTeam-' + inserted_champion['name'] + '">' + inserted_champion['playerCount'] + '</div>' +
                     '                            </div>' +
                     '                            <div class="col-2">' +
-                    '                                <button type="button" onclick="incChampField(`number-in-enemies-' + inserted_champion['name'] + '`)" class="btn btn-primary" style="width: 34px">+</button>' +
+                    '                                <button type="button" onclick="updateNumberInEnnemies(\'inc-inEnemies-' + inserted_champion['name'] + '\')" id="inc-inEnemies-' + inserted_champion['name'] + '" class="btn btn-primary number-inEnemies" style="width: 34px">+</button>' +
                     '                                <br>' +
-                    '                                <button type="button" onclick="dscChampField(`number-in-enemies-' + inserted_champion['name'] + '`)" class="btn btn-primary" style="width: 34px;margin-top: 4px">-</button>' +
+                    '                                <button type="button" onclick="updateNumberInEnnemies(\'dec-inEnemies-' + inserted_champion['name'] + '\')" id="dec-inEnemies-' + inserted_champion['name'] + '" class="btn btn-primary number-inEnemies" style="width: 34px;margin-top: 4px">-</button>' +
                     '                            </div>' +
                     '                            <div class="col-2" style="text-align: center">' +
                     '                                Adverses' +
                     '                                <br>' +
-                    '                                <input style="border: none; background:none;" type="text" id="number-in-enemies-' + inserted_champion['name'] + '" value="' + inserted_champion['otherCount'] + '"/>' +
+                    '                                <div id="number-inEnemies-' + inserted_champion['name'] + '">' + inserted_champion['otherCount'] + '</div>' +
                     '                            </div>' +
                     '                            <div class="col-1" >' +
                     '                                <button type="button" class="btn btn-danger delete-selected-champion" onclick="deleteChampion(\''+ inserted_champion['name'] + '\')"  id="delete-' + inserted_champion['name'] + '" style="width: 34px;">X</button>' +
@@ -193,6 +193,23 @@
             }
         });
     });
+
+    function updateNumberInEnnemies(name) {
+        $.ajax({
+            url: 'championInEnemies/update',
+            data : {
+                'name': name
+            },
+            success: function (data) {
+                id ="number-inEnemies-"+data.name
+                document.getElementById(id).innerHTML = data.value;
+            },
+            error: function (response) {
+                alert("out of bound");
+            }
+        });
+    }
+
     $(".delete-selected-champion").click(function (e) {
         championToDelete = e.target.id;
         championToDelete = championToDelete.substr(championToDelete.indexOf('-') + 1)
@@ -214,6 +231,24 @@
             }
         });
     });
+
+    function updateNumberInTeam(name) {
+        $.ajax({
+            url: 'championInTeam/update',
+            data : {
+                'name': name
+            },
+            success: function (data) {
+                id ="number-inTeam-"+data.name
+                document.getElementById(id).innerHTML = data.value;
+            },
+            error: function (response) {
+                alert("out of bound");
+            }
+        });
+    }
+
+
     function deleteChampion(championName) {
         var removeSelectedChamp = window.confirm("Voulez-vous remettre vos " + championName + " dans les champions restants ?")
         $.ajax({
