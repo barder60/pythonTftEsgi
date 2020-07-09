@@ -1,18 +1,12 @@
 import os
 
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse
 
-from .project_models.champion import Champion
 from .services.championsService import addSelectedChampions
-# Create your views here.
-from django.template import loader
-from .project_models import champion
-from .utils.ChampionUtils import parseChampionJson
-# Create your views here.
 import os
 
-from app.utils.ChampionUtils import parseChampionJson
+from app.utils.ChampionUtils import parseChampionJson, get_starting_stock_of_cost
 
 champions = parseChampionJson(os.getcwd() + '/ressources/champions.json')
 selected_champions = []
@@ -47,6 +41,28 @@ def new_selected_champion(request):
         'championsBoughtByCost': champions_bought_by_cost
     }
     return render(request, 'app/game.html', context)
+
+
+def update_champion_bought(request):
+    global champions_bought_by_cost
+    resource = request.GET.get('name')
+    resource = resource.split('-')
+
+    if len(resource) == 3:
+        if resource[0] == 'inc':
+            champions_bought_by_cost[int(resource[2]) - 1] = champions_bought_by_cost[ int(resource[2]) - 1] + 1
+            starting_cost = get_starting_stock_of_cost(int(resource[2]))
+            if champions_bought_by_cost[int(resource[2]) - 1] > starting_cost:
+                champions_bought_by_cost[int(resource[2]) - 1] = starting_cost
+                return HttpResponse("La limite est de " + str(starting_cost) + " pour ce coût", status=416)
+        elif resource[0] == 'dec':
+            champions_bought_by_cost[int(resource[2]) - 1] = champions_bought_by_cost[int(resource[2]) - 1] - 1
+            if champions_bought_by_cost[int(resource[2]) - 1] < 0:
+                champions_bought_by_cost[int(resource[2]) - 1] = 0
+                return HttpResponse("", status=416)
+
+    return JsonResponse({'cost': resource[2], 'value': str(champions_bought_by_cost[int(resource[2]) - 1])}, status=200)
+
 
 def json_example(request):
     context = {"categories": [75,25,0,0,0]}
