@@ -1,0 +1,6 @@
+.card {
+overflow-x: scroll;
+white-space: nowrap;
+max-width: 150px;
+padding: 1rem;
+}

@@ -20,7 +20,7 @@ class SelectedChampion(Champion):
         # TODO costDropRate => récuperer le pourcentage d'obtenir les heros du cout => self.cost
         # TODO avoir le stock de départ du personnage
         startingStock = self.getStartingStock(self)
-        costDropRate = self.getCostDropRate(self)
+        costDropRate = self.getCostDropRate(self, playerLevel)
 
 
         selectedChampionRemaining = startingStock - (self.otherCount + self.playerCount)
@@ -35,10 +35,9 @@ class SelectedChampion(Champion):
             # TODO : prevoir erreur de retour pour raison inconnu
             return champCounterList.champCounter[self.cost - 1]
 
-    def getCostDropRate(self):
+    def getCostDropRate(self, playerLevel):
         data = edict(FileManager())
-        # TODO: getThePlayerLevel
-        playerLevel = 4
+
         with open(data.json.rules, "r") as json_file:
             dataRules = json.load(json_file)
             champCounterList = edict(dataRules)

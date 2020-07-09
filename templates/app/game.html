@@ -44,7 +44,7 @@
                 {% for champion in selectedChampions %}
                     <li class="list-group-item">
                         <div class="row">
-                            <div class="col-3">
+                            <div class="col-2">
                                 {% load static %}
                                 <img class="champion" id="{{ champion.name }}" src="{% static champion.pngPath %}">
                             </div>
@@ -68,6 +68,9 @@
                                 <br>
                                 {{ champion.otherCount }}
                             </div>
+                            <div class="col-1" >
+                                <button type="button" class="btn btn-danger" style="width: 34px;">X</button>
+                            </div>
                         </div>
                     </li>
                 {%  endfor %}
@@ -84,13 +87,13 @@
                         <li class="list-group-item">
                             <div class="row">
                                 <div class="col-3">
-                                    {{ forloop.counter }} &#9733; : {{ cost }}
+                                    {{ forloop.counter }} &#9733; :<div id="cost-{{ forloop.counter }}-value"> {{ cost }}</div>
                                 </div>
                                 <div class="col-3" style="margin-right: 5px">
-                                    <button type="button" class="btn btn-primary">Augmenter</button>
+                                    <button type="button" class="btn btn-primary upd-champion-cost" id="inc-cost-{{ forloop.counter }}">Augmenter</button>
                                 </div>
                                 <div class="col-3">
-                                    <button type="button" class="btn btn-primary">Réduire</button>
+                                    <button type="button" class="btn btn-primary upd-champion-cost" id="dec-cost-{{ forloop.counter }}">Réduire</button>
                                 </div>
                             </div>
                         </li>
@@ -101,6 +104,7 @@
     </div>
 
 </body>
+
 {% block javascript %}
     <script>
     $(".champion").click(function(e) {
@@ -114,7 +118,26 @@
             }
         });
     })
+
+    $(".upd-champion-cost").click(function(e) {
+        $.ajax({
+            url: 'championsByCost/update',
+            data : {
+                'name': e.target.id
+            },
+            success: function (data) {
+                id = "cost-" + data.cost + "-value"
+                document.getElementById(id).innerHTML = data.value;
+            },
+            error: function (response) {
+                alert("out of bound");
+            }
+        });
+    })
+
+
     </script>
+
 {% endblock %}
 
 </html>

@@ -19,3 +19,12 @@ def parseChampionJson(path):
             champions.append(champion)
 
     return champions
+
+
+def get_starting_stock_of_cost(cost):
+    data = edict(FileManager())
+    with open(data.json.rules, "r") as json_file:
+        data_rules = json.load(json_file)
+        champ_counter_list = edict(data_rules)
+        # TODO : prevoir erreur de retour pour raison inconnu
+        return champ_counter_list.champCounter[cost - 1]
