@@ -25,6 +25,31 @@
 
 </head>
 <body>
+<div id="container"></div>
+  <script src="https://code.highcharts.com/highcharts.src.js"></script>
+  <script>
+    Highcharts.chart('container', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Historic World Population by Region'
+        },
+        xAxis: {
+            categories: ['% getting your comp']
+        },
+        series: [{
+            name: 'Year 1800',
+            data: []
+        }, {
+            name: 'Year 1900',
+            data: []
+        }, {
+            name: 'Year 2012',
+            data: [100]
+        }]
+    });
+  </script>
     <h1>Let's grind master</h1>
     <div class="container testimonial-group">
       <div class="row">
@@ -49,24 +74,25 @@
                                 <img class="champion" id="{{ champion.name }}" src="{% static champion.pngPath %}">
                             </div>
                             <div class="col-2">
-                                <button type="button" class="btn btn-primary" style="width: 34px">+</button>
+                                <button type="button" onclick="incChampField(`number-in-team-{{ champion.name }}`)" class="btn btn-primary" style="width: 34px">+</button>
                                 <br>
-                                <button type="button" class="btn btn-primary" style="width: 34px;margin-top: 4px">-</button>
+                                <button type="button" onclick="dscChampField(`number-in-team-{{ champion.name }}`)" class="btn btn-primary" style="width: 34px;margin-top: 4px">-</button>
                             </div>
                             <div class="col-2">
                                 Moi
                                 <br>
-                                {{ champion.playerCount }}
+                               <input style="border: none; background:none;" type="text" id="number-in-team-{{ champion.name }}" value="{{ champion.playerCount }}"/>
                             </div>
                             <div class="col-2">
-                                <button type="button" class="btn btn-primary" style="width: 34px">+</button>
+                                <button type="button" onclick="incChampField(`number-in-enemies-{{ champion.name }}`)" class="btn btn-primary" style="width: 34px">+</button>
                                 <br>
-                                <button type="button" class="btn btn-primary" style="width: 34px;margin-top: 4px">-</button>
+                                <button type="button" onclick="dscChampField(`number-in-enemies-{{ champion.name }}`)" class="btn btn-primary" style="width: 34px;margin-top: 4px">-</button>
                             </div>
                             <div class="col-2" style="text-align: center">
                                 Adverses
                                 <br>
-                                {{ champion.otherCount }}
+                                <input style="border: none; background:none;" type="text" id="number-in-enemies-{{ champion.name }}" value="{{ champion.otherCount }}"/>
+
                             </div>
                             <div class="col-1" >
                                 <button type="button" class="btn btn-danger" style="width: 34px;">X</button>
@@ -136,6 +162,46 @@
     })
 
 
+    function incChampField(idNbChamp) {
+        let value = parseInt(document.getElementById(idNbChamp).value, 10);
+        value = isNaN(value) ? 0 : value;
+        value++;
+        document.getElementById(idNbChamp).value = value;
+        // requete pour update ennemies champ
+        if(/number-in-enemies/gi.test(idNbChamp)){
+
+        }
+        // requete pour update myteam champ
+        if(/number-in-team/gi.test(idNbChamp)){
+
+        }
+        // requete pour update ennemies champ
+        if(/number-in-remains/gi.test(idNbChamp)){
+
+        }
+    }
+
+    function dscChampField(idNbChamp) {
+        let value = parseInt(document.getElementById(idNbChamp).value, 10);
+        if(value === 0) document.getElementById(idNbChamp).value = value;
+        else {
+            value = isNaN(value) ? 0 : value;
+            value--;
+            document.getElementById(idNbChamp).value = value;
+        }
+        // requete pour update ennemies champ
+        if(/number-in-enemies/gi.test(idNbChamp)){
+
+        }
+        // requete pour update myteam champ
+        if(/number-in-team/gi.test(idNbChamp)){
+
+        }
+        // requete pour update ennemies champ
+        if(/number-in-remains/gi.test(idNbChamp)){
+
+        }
+    }
     </script>
 
 {% endblock %}
