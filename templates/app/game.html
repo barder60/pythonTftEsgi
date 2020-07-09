@@ -74,24 +74,25 @@
                                 <img class="champion" id="{{ champion.name }}" src="{% static champion.pngPath %}">
                             </div>
                             <div class="col-2">
-                                <button type="button" class="btn btn-primary" style="width: 34px">+</button>
+                                <button type="button" onclick="incChampField(`number-in-team-{{ champion.name }}`)" class="btn btn-primary" style="width: 34px">+</button>
                                 <br>
-                                <button type="button" class="btn btn-primary" style="width: 34px;margin-top: 4px">-</button>
+                                <button type="button" onclick="dscChampField(`number-in-team-{{ champion.name }}`)" class="btn btn-primary" style="width: 34px;margin-top: 4px">-</button>
                             </div>
                             <div class="col-2">
                                 Moi
                                 <br>
-                                {{ champion.playerCount }}
+                               <input style="border: none; background:none;" type="text" id="number-in-team-{{ champion.name }}" value="{{ champion.playerCount }}"/>
                             </div>
                             <div class="col-2">
-                                <button type="button" class="btn btn-primary" style="width: 34px">+</button>
+                                <button type="button" onclick="incChampField(`number-in-enemies-{{ champion.name }}`)" class="btn btn-primary" style="width: 34px">+</button>
                                 <br>
-                                <button type="button" class="btn btn-primary" style="width: 34px;margin-top: 4px">-</button>
+                                <button type="button" onclick="dscChampField(`number-in-enemies-{{ champion.name }}`)" class="btn btn-primary" style="width: 34px;margin-top: 4px">-</button>
                             </div>
                             <div class="col-2" style="text-align: center">
                                 Adverses
                                 <br>
-                                {{ champion.otherCount }}
+                                <input style="border: none; background:none;" type="text" id="number-in-enemies-{{ champion.name }}" value="{{ champion.otherCount }}"/>
+
                             </div>
                         </div>
                     </li>
@@ -109,13 +110,15 @@
                         <li class="list-group-item">
                             <div class="row">
                                 <div class="col-3">
-                                    {{ forloop.counter }} &#9733; : {{ cost }}
+                                    {{ forloop.counter }} &#9733; :
+                                    <input style="border: none; background:none;" type="text" id="number-in-remains-{{ forloop.counter }}" value="{{ cost }}"/>
+
                                 </div>
                                 <div class="col-3" style="margin-right: 5px">
-                                    <button type="button" class="btn btn-primary">Augmenter</button>
+                                    <button type="button"  onclick="incChampField(`number-in-remains-{{ forloop.counter }}`)" class="btn btn-primary">Augmenter</button>
                                 </div>
                                 <div class="col-3">
-                                    <button type="button" class="btn btn-primary">Réduire</button>
+                                    <button type="button" onclick="dscChampField(`number-in-remains-{{ forloop.counter }}`)" class="btn btn-primary">Réduire</button>
                                 </div>
                             </div>
                         </li>
@@ -139,20 +142,44 @@
             }
         });
     })
-    function incChampInTeam(idNbChamp) {
+    function incChampField(idNbChamp) {
         let value = parseInt(document.getElementById(idNbChamp).value, 10);
         value = isNaN(value) ? 0 : value;
         value++;
         document.getElementById(idNbChamp).value = value;
+        // requete pour update ennemies champ
+        if(/number-in-enemies/gi.test(idNbChamp)){
+
+        }
+        // requete pour update myteam champ
+        if(/number-in-team/gi.test(idNbChamp)){
+
+        }
+        // requete pour update ennemies champ
+        if(/number-in-remains/gi.test(idNbChamp)){
+
+        }
     }
 
-    function dscChampInTeam(idNbChamp) {
+    function dscChampField(idNbChamp) {
         let value = parseInt(document.getElementById(idNbChamp).value, 10);
         if(value === 0) document.getElementById(idNbChamp).value = value;
         else {
             value = isNaN(value) ? 0 : value;
             value--;
             document.getElementById(idNbChamp).value = value;
+        }
+        // requete pour update ennemies champ
+        if(/number-in-enemies/gi.test(idNbChamp)){
+
+        }
+        // requete pour update myteam champ
+        if(/number-in-team/gi.test(idNbChamp)){
+
+        }
+        // requete pour update ennemies champ
+        if(/number-in-remains/gi.test(idNbChamp)){
+
         }
     }
     </script>
