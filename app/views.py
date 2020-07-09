@@ -1,9 +1,10 @@
-import os
+import json
 
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 
-from .services.championsService import addSelectedChampions
+from .services.championsService import addSelectedChampions, can_add_selected_champion, get_selected_champion, \
+    reset_champion_remaining
 import os
 
 from app.utils.ChampionUtils import parseChampionJson, get_starting_stock_of_cost
@@ -28,19 +29,34 @@ def game(request):
     }
     return render(request, 'app/game.html', context)
 
+
 def new_selected_champion(request):
     global selected_champions
     name = request.GET.get('name')
+
+    if not can_add_selected_champion(selected_champions, name):
+        return JsonResponse({}, status=401)
+
     for champ in champions :
         if name == champ.name :
             addSelectedChampions(selected_champions, champ)
 
-    context = {
-        'champion_list': champions,
-        'selectedChampions': selected_champions,
-        'championsBoughtByCost': champions_bought_by_cost
-    }
-    return render(request, 'app/game.html', context)
+    inserted_champion = [x for x in selected_champions if x.name == name]
+
+    return JsonResponse({"inserted_champion": json.dumps(inserted_champion[0].__dict__)}, status=200)
+
+
+def remove_selected_champion(request):
+    global selected_champions
+    global champions_bought_by_cost
+    name = request.GET.get('name')
+    reset = request.GET.get('reset')
+    champion_to_remove = get_selected_champion(selected_champions, name)
+
+    if reset:
+        champions_bought_by_cost = reset_champion_remaining(champions_bought_by_cost, champion_to_remove)
+    selected_champions = [x for x in selected_champions if x != champion_to_remove]
+    return JsonResponse({'cost': champion_to_remove.cost, 'value': str(champions_bought_by_cost[champion_to_remove.cost - 1])}, status=200)
 
 
 def update_champion_bought(request):

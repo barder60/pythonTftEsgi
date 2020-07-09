@@ -21,6 +21,13 @@
             background-color: grey;
             border-radius: 2px;
         }
+        .list-my-champs{
+            max-height: 700px;
+            margin-bottom: 10px;
+            overflow-y:scroll;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
     </style>
 
 </head>
@@ -41,9 +48,9 @@
     <div class="row">
         <div class="col-3">
             <h1>Ma selection</h1>
-            <ul class="list-group">
+            <ul class="list-group list-my-champs" id="list-selected-champions">
                 {% for champion in selectedChampions %}
-                    <li class="list-group-item">
+                    <li class="list-group-item" id="row-{{ champion.name }}">
                         <div class="row">
                             <div class="col-2">
                                 {% load static %}
@@ -70,9 +77,10 @@
                                 <div id="number-inEnemies-{{ champion.name }}">{{ champion.otherCount }}</div>
                             </div>
                             <div class="col-1" >
-                                <button type="button" class="btn btn-danger" style="width: 34px;">X</button>
+                                <button type="button" class="btn btn-danger delete-selected-champion"  id="delete-{{ champion.name }}" style="width: 34px;">X</button>
                             </div>
                         </div>
+
                     </li>
                 {%  endfor %}
             </ul>
@@ -115,7 +123,41 @@
                 'name': e.target.id
             },
             success: function (data) {
-
+                var inserted_champion = JSON.parse(data["inserted_champion"]);
+                console.log(inserted_champion)
+                $("#list-selected-champions").append(
+                    '<li class="list-group-item" id="row-' + inserted_champion['name'] + '">' +
+                    '                        <div class="row">' +
+                    '                            <div class="col-2">' +
+                    '                                <img class="champion" id="' + inserted_champion['name'] + '" src="/static' + inserted_champion['pngPath'] + '">' +
+                    '                            </div>' +
+                    '                            <div class="col-2">' +
+                    '                                <button type="button" onclick="updateNumberInTeam(\'inc-inTeam-' + inserted_champion['name'] + '\')" id="inc-inTeam-' + inserted_champion['name'] + '" class="btn btn-primary number-inTeam" style="width: 34px">+</button>' +
+                    '                                <br>' +
+                    '                                <button type="button" onclick="updateNumberInTeam(\'dec-inTeam-' + inserted_champion['name'] + '\')" id="dec-inTeam-' + inserted_champion['name'] + '" class="btn btn-primary number-inTeam" style="width: 34px;margin-top: 4px">-</button>' +
+                    '                            </div>' +
+                    '                            <div class="col-2">' +
+                    '                                Moi' +
+                    '                                <br>' +
+                    '                               <div id="number-inTeam-' + inserted_champion['name'] + '">' + inserted_champion['playerCount'] + '</div>' +
+                    '                            </div>' +
+                    '                            <div class="col-2">' +
+                    '                                <button type="button" onclick="updateNumberInEnnemies(\'inc-inEnemies-' + inserted_champion['name'] + '\')" id="inc-inEnemies-' + inserted_champion['name'] + '" class="btn btn-primary number-inEnemies" style="width: 34px">+</button>' +
+                    '                                <br>' +
+                    '                                <button type="button" onclick="updateNumberInEnnemies(\'dec-inEnemies-' + inserted_champion['name'] + '\')" id="dec-inEnemies-' + inserted_champion['name'] + '" class="btn btn-primary number-inEnemies" style="width: 34px;margin-top: 4px">-</button>' +
+                    '                            </div>' +
+                    '                            <div class="col-2" style="text-align: center">' +
+                    '                                Adverses' +
+                    '                                <br>' +
+                    '                                <div id="number-inEnemies-' + inserted_champion['name'] + '">' + inserted_champion['otherCount'] + '</div>' +
+                    '                            </div>' +
+                    '                            <div class="col-1" >' +
+                    '                                <button type="button" class="btn btn-danger delete-selected-champion" onclick="deleteChampion(\''+ inserted_champion['name'] + '\')"  id="delete-' + inserted_champion['name'] + '" style="width: 34px;">X</button>' +
+                    '                            </div>' +
+                    '                        </div>' +
+                    '                    </li>'
+                )
+                console.log(data)
             }
         });
     })
@@ -152,6 +194,28 @@
         });
     });
 
+    function updateNumberInEnnemies(name) {
+        $.ajax({
+            url: 'championInEnemies/update',
+            data : {
+                'name': name
+            },
+            success: function (data) {
+                id ="number-inEnemies-"+data.name
+                document.getElementById(id).innerHTML = data.value;
+            },
+            error: function (response) {
+                alert("out of bound");
+            }
+        });
+    }
+
+    $(".delete-selected-champion").click(function (e) {
+        championToDelete = e.target.id;
+        championToDelete = championToDelete.substr(championToDelete.indexOf('-') + 1)
+        deleteChampion(championToDelete);
+    })
+
     $(".number-inTeam").click(function(e) {
         $.ajax({
             url: 'championInTeam/update',
@@ -167,6 +231,42 @@
             }
         });
     });
+
+    function updateNumberInTeam(name) {
+        $.ajax({
+            url: 'championInTeam/update',
+            data : {
+                'name': name
+            },
+            success: function (data) {
+                id ="number-inTeam-"+data.name
+                document.getElementById(id).innerHTML = data.value;
+            },
+            error: function (response) {
+                alert("out of bound");
+            }
+        });
+    }
+
+
+    function deleteChampion(championName) {
+        var removeSelectedChamp = window.confirm("Voulez-vous remettre vos " + championName + " dans les champions restants ?")
+        $.ajax({
+            url: 'selectedChamp/delete',
+            data: {
+                'name': championName,
+                'reset': removeSelectedChamp
+            },
+            success: function (data) {
+                let rowToDelete = document.getElementById("row-" + championName);
+                document.getElementById("list-selected-champions").removeChild(rowToDelete)
+                console.log(data)
+            },
+            error: function (response) {
+
+            }
+        })
+    }
     </script>
     <script src="https://code.highcharts.com/highcharts.src.js"></script>
   <script>
