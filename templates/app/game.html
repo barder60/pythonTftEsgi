@@ -21,35 +21,17 @@
             background-color: grey;
             border-radius: 2px;
         }
+        .list-my-champs{
+            max-height: 700px;
+            margin-bottom: 10px;
+            overflow-y:scroll;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
     </style>
 
 </head>
 <body>
-<div id="container"></div>
-  <script src="https://code.highcharts.com/highcharts.src.js"></script>
-  <script>
-    Highcharts.chart('container', {
-        chart: {
-            type: 'column'
-        },
-        title: {
-            text: 'Historic World Population by Region'
-        },
-        xAxis: {
-            categories: ['% getting your comp']
-        },
-        series: [{
-            name: 'Year 1800',
-            data: []
-        }, {
-            name: 'Year 1900',
-            data: []
-        }, {
-            name: 'Year 2012',
-            data: [100]
-        }]
-    });
-  </script>
     <h1>Let's grind master</h1>
     <div class="container testimonial-group">
       <div class="row">
@@ -65,9 +47,9 @@
     <div class="row">
         <div class="col-3">
             <h1>Ma selection</h1>
-            <ul class="list-group">
+            <ul class="list-group list-my-champs" id="list-selected-champions">
                 {% for champion in selectedChampions %}
-                    <li class="list-group-item">
+                    <li class="list-group-item" id="row-{{ champion.name }}">
                         <div class="row">
                             <div class="col-2">
                                 {% load static %}
@@ -95,15 +77,16 @@
 
                             </div>
                             <div class="col-1" >
-                                <button type="button" class="btn btn-danger" style="width: 34px;">X</button>
+                                <button type="button" class="btn btn-danger delete-selected-champion"  id="delete-{{ champion.name }}" style="width: 34px;">X</button>
                             </div>
                         </div>
+
                     </li>
                 {%  endfor %}
             </ul>
         </div>
         <div class="col-6">
-
+            <div id="container"></div>
         </div>
         <div class="col-3">
             <h1>Champions achetés :</h1>
@@ -140,7 +123,41 @@
                 'name': e.target.id
             },
             success: function (data) {
-
+                var inserted_champion = JSON.parse(data["inserted_champion"]);
+                console.log(inserted_champion)
+                $("#list-selected-champions").append(
+                    '<li class="list-group-item" id="row-' + inserted_champion['name'] + '">' +
+                    '                        <div class="row">' +
+                    '                            <div class="col-2">' +
+                    '                                <img class="champion" id="' + inserted_champion['name'] + '" src="/static' + inserted_champion['pngPath'] + '">' +
+                    '                            </div>' +
+                    '                            <div class="col-2">' +
+                    '                                <button type="button" onclick="incChampField(`number-in-team-' + inserted_champion['name'] + '`)" class="btn btn-primary" style="width: 34px">+</button>' +
+                    '                                <br>' +
+                    '                                <button type="button" onclick="dscChampField(`number-in-team-' + inserted_champion['name'] + '`)" class="btn btn-primary" style="width: 34px;margin-top: 4px">-</button>' +
+                    '                            </div>' +
+                    '                            <div class="col-2">' +
+                    '                                Moi' +
+                    '                                <br>' +
+                    '                               <input style="border: none; background:none;" type="text" id="number-in-team-' + inserted_champion['name'] + '" value="' + inserted_champion['playerCount'] + '"/>' +
+                    '                            </div>' +
+                    '                            <div class="col-2">' +
+                    '                                <button type="button" onclick="incChampField(`number-in-enemies-' + inserted_champion['name'] + '`)" class="btn btn-primary" style="width: 34px">+</button>' +
+                    '                                <br>' +
+                    '                                <button type="button" onclick="dscChampField(`number-in-enemies-' + inserted_champion['name'] + '`)" class="btn btn-primary" style="width: 34px;margin-top: 4px">-</button>' +
+                    '                            </div>' +
+                    '                            <div class="col-2" style="text-align: center">' +
+                    '                                Adverses' +
+                    '                                <br>' +
+                    '                                <input style="border: none; background:none;" type="text" id="number-in-enemies-' + inserted_champion['name'] + '" value="' + inserted_champion['otherCount'] + '"/>' +
+                    '                            </div>' +
+                    '                            <div class="col-1" >' +
+                    '                                <button type="button" class="btn btn-danger delete-selected-champion" onclick="deleteChampion(\''+ inserted_champion['name'] + '\')"  id="delete-' + inserted_champion['name'] + '" style="width: 34px;">X</button>' +
+                    '                            </div>' +
+                    '                        </div>' +
+                    '                    </li>'
+                )
+                console.log(data)
             }
         });
     })
@@ -160,6 +177,31 @@
             }
         });
     })
+
+    $(".delete-selected-champion").click(function (e) {
+        championToDelete = e.target.id;
+        championToDelete = championToDelete.substr(championToDelete.indexOf('-') + 1)
+        deleteChampion(championToDelete);
+    })
+
+    function deleteChampion(championName) {
+        var removeSelectedChamp = window.confirm("Voulez-vous remettre vos " + championName + " dans les champions restants ?")
+        $.ajax({
+            url: 'selectedChamp/delete',
+            data: {
+                'name': championName,
+                'reset': removeSelectedChamp
+            },
+            success: function (data) {
+                let rowToDelete = document.getElementById("row-" + championName);
+                document.getElementById("list-selected-champions").removeChild(rowToDelete)
+                console.log(data)
+            },
+            error: function (response) {
+
+            }
+        })
+    }
 
 
     function incChampField(idNbChamp) {
@@ -203,6 +245,30 @@
         }
     }
     </script>
+    <script src="https://code.highcharts.com/highcharts.src.js"></script>
+      <script>
+        Highcharts.chart('container', {
+            chart: {
+                type: 'column'
+            },
+            title: {
+                text: 'Historic World Population by Region'
+            },
+            xAxis: {
+                categories: ['% getting your comp']
+            },
+            series: [{
+                name: 'Year 1800',
+                data: []
+            }, {
+                name: 'Year 1900',
+                data: []
+            }, {
+                name: 'Year 2012',
+                data: [100]
+            }]
+        });
+      </script>
 
 {% endblock %}
 
