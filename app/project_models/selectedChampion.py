@@ -14,16 +14,15 @@ class SelectedChampion(Champion):
         return self.name + " obtenue= " + str(self.playerCount) + " adverse= " + str(self.otherCount)
 
     def updateDropRate(self, playerLevel, stockSameCostRemaining):
-        # stockSameCostRemaining => le nombre de perso du meme cout restant
-        # stockAllRemaining => le nombre de perso restant
 
         startingStock = self.getStartingStock()
         costDropRate = self.getCostDropRate(playerLevel)
-
         selectedChampionRemaining = startingStock - (self.otherCount + self.playerCount)
 
         self.dropRateOfSameCost = selectedChampionRemaining * 100 / stockSameCostRemaining
-        self.dropRateOfAll = self.dropRateOfSameCost * (costDropRate)
+
+        self.dropRateOfAll = self.dropRateOfSameCost * (costDropRate/100)
+
 
 
     def getStartingStock(self):

@@ -34,3 +34,20 @@ def get_starting_stock_of_cost(cost):
 
         # TODO : prevoir erreur de retour pour raison inconnu
         return champ_counter_list.champCounter[cost - 1] * champ_counter_list.quantity[cost - 1]
+
+def get_starting_stock_of_one_champion_by_cost(cost):
+    data = edict(FileManager())
+    with open(data.json.rules, "r") as json_file:
+        data_rules = json.load(json_file)
+        champ_counter_list = edict(data_rules)
+
+        return champ_counter_list.champCounter[cost - 1]
+
+
+def get_all_drop_rates_by_level(level):
+    data = edict(FileManager())
+    with open(data.json.rules, "r") as json_file:
+        data_rules = json.load(json_file)
+        champ_counter_list = edict(data_rules)
+
+        return champ_counter_list.statsByLevel[level - 1].stats

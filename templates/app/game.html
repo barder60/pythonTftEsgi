@@ -86,6 +86,18 @@
             </ul>
         </div>
         <div class="col-6">
+            <div class="row">
+                <h2 class="col-3" style="text-align: center;vertical-align: center;padding-top: 3px">
+                        Niveau : <span id="level">{{ level }}</span>
+                </h2>
+                <div class="col-3" style="padding-top: 5px">
+                    <button type="button" class="btn btn-primary"  onclick="updateLevel('inc')" style="width: 34px">+</button>
+                    <button type="button" class="btn btn-primary"  onclick="updateLevel('dec')" style="width: 34px">-</button>
+                </div>
+                <h3 class="col" style="padding-top: 3px">
+                    Chance de drop : <span id="drop-rate">{{ drop_rate }}</span>
+                </h3>
+            </div>
             <div id="graph"></div>
         </div>
         <div class="col-3">
@@ -95,8 +107,8 @@
                     {% for cost in championsBoughtByCost %}
                         <li class="list-group-item">
                             <div class="row">
-                                <div class="col-3">
-                                    {{ forloop.counter }} &#9733; :<div id="cost-{{ forloop.counter }}-value"> {{ cost }}</div>
+                                <div class="col-3" style="padding-top: 4px">
+                                    {{ forloop.counter }} &#9733; :<span id="cost-{{ forloop.counter }}-value"> {{ cost }}</span>
                                 </div>
                                 <div class="col-3" style="margin-right: 5px">
                                     <button type="button" class="btn btn-primary upd-champion-cost" id="inc-cost-{{ forloop.counter }}">Augmenter</button>
@@ -157,7 +169,6 @@
                     '                        </div>' +
                     '                    </li>'
                 )
-                console.log(data)
             }
         });
     })
@@ -189,6 +200,8 @@
                 loadGraph()
                 id ="number-inEnemies-"+data.name
                 document.getElementById(id).innerHTML = data.value;
+                idcost = "cost-" + data.cost + "-value"
+                document.getElementById(idcost).innerHTML = data.costValue;
             },
             error: function (response) {
                 alert("out of bound");
@@ -206,6 +219,8 @@
                 loadGraph()
                 id ="number-inEnemies-"+data.name
                 document.getElementById(id).innerHTML = data.value;
+                idcost = "cost-" + data.cost + "-value"
+                document.getElementById(idcost).innerHTML = data.costValue;
             },
             error: function (response) {
                 alert("out of bound");
@@ -229,6 +244,8 @@
                 loadGraph()
                 id = "number-inTeam-"+data.name;
                 document.getElementById(id).innerHTML = data.value;
+                idcost = "cost-" + data.cost + "-value"
+                document.getElementById(idcost).innerHTML = data.costValue;
             },
             error: function (response) {
                 alert("out of bound");
@@ -246,6 +263,8 @@
                 loadGraph()
                 id ="number-inTeam-"+data.name
                 document.getElementById(id).innerHTML = data.value;
+                idcost = "cost-" + data.cost + "-value"
+                document.getElementById(idcost).innerHTML = data.costValue;
             },
             error: function (response) {
                 alert("out of bound");
@@ -266,12 +285,29 @@
                 loadGraph()
                 let rowToDelete = document.getElementById("row-" + championName);
                 document.getElementById("list-selected-champions").removeChild(rowToDelete)
-                console.log(data)
             },
             error: function (response) {
 
             }
         })
+    }
+
+    function updateLevel(state) {
+        $.ajax({
+            url: 'level/update',
+            data: {
+                'state': state
+            },
+            success: function (data) {
+                loadGraph()
+                document.getElementById("level").innerHTML = data.level
+                document.getElementById("drop-rate").innerHTML = "[" + data.drop_rate + "]"
+            },
+            error: function (response) {
+
+            }
+        })
+
     }
     </script>
     <script src="https://code.highcharts.com/highcharts.src.js"></script>
@@ -288,13 +324,12 @@
 
                 let allNameChamp = []
                 let allDropRateChamp = []
+                let allDropRateSameCost = []
                 selectedChampions.forEach((e)=>{
                     allNameChamp.push(e.name)
                     allDropRateChamp.push(e.dropRateOfAll)
+                    allDropRateSameCost.push(e.dropRateOfSameCost)
                 })
-                console.log(selectedChampions)
-                console.log(allDropRateChamp)
-
 
                 $('#graph').highcharts({
                     chart: {
@@ -310,9 +345,9 @@
                         categories: allNameChamp,
                         crosshair: true
                     },
-                    yAxis: {min: 0, max:100,tickInterval: 25,
+                    yAxis: {min: 0, max:40,tickInterval: 20,
                               title: {
-                                  text: "title"
+                                  text: "pourcentage"
                               },
                               labels: {
                                   format: '{value}%',
@@ -325,9 +360,14 @@
                         }
                     },
                     series: [{
-                        name: 'pourcentage',
+                        name: 'Chance de drop total',
                         data: allDropRateChamp,
-                    }]
+                    },
+                        {
+                            name: 'Chance de drop pour le même cout',
+                            data: allDropRateSameCost
+
+                        }]
                 })
             },
             error: function (response) {

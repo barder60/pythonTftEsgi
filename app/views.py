@@ -7,12 +7,14 @@ from .services.championsService import addSelectedChampions, can_add_selected_ch
     reset_champion_remaining
 import os
 
-from app.utils.ChampionUtils import parseChampionJson, get_starting_stock_of_cost
+from app.utils.ChampionUtils import parseChampionJson, get_starting_stock_of_cost, \
+    get_starting_stock_of_one_champion_by_cost, get_all_drop_rates_by_level
 from .utils.ChampionUtils import updateAllSelectedChamp
 
 champions = parseChampionJson(os.getcwd() + '/ressources/champions.json')
 selected_champions = []
 champions_bought_by_cost = [0, 0, 0, 0, 0]
+level = 1
 
 
 def index(request):
@@ -21,12 +23,13 @@ def index(request):
 
 def game(request):
     global selected_champions
-    print(selected_champions)
-
+    drop_rates = get_all_drop_rates_by_level(level)
     context = {
-        'champion_list' : champions,
-        'selectedChampions' : selected_champions,
-        'championsBoughtByCost' : champions_bought_by_cost
+        'champion_list': champions,
+        'selectedChampions': selected_champions,
+        'championsBoughtByCost': champions_bought_by_cost,
+        'level': level,
+        'drop_rate': drop_rates
     }
     return render(request, 'app/game.html', context)
 
@@ -43,7 +46,7 @@ def new_selected_champion(request):
         if name == champ.name :
             addSelectedChampions(selected_champions, champ)
 
-    updateAllSelectedChamp(selected_champions, 4, champions_bought_by_cost)
+    updateAllSelectedChamp(selected_champions, level, champions_bought_by_cost)
     inserted_champion = [x for x in selected_champions if x.name == name]
     return JsonResponse({"inserted_champion": json.dumps(inserted_champion[0].__dict__)}, status=200)
 
@@ -58,7 +61,7 @@ def remove_selected_champion(request):
     if reset:
         champions_bought_by_cost = reset_champion_remaining(champions_bought_by_cost, champion_to_remove)
     selected_champions = [x for x in selected_champions if x != champion_to_remove]
-    updateAllSelectedChamp(selected_champions, 4, champions_bought_by_cost)
+    updateAllSelectedChamp(selected_champions, level, champions_bought_by_cost)
     return JsonResponse({'cost': champion_to_remove.cost, 'value': str(champions_bought_by_cost[champion_to_remove.cost - 1])}, status=200)
 
 
@@ -68,22 +71,25 @@ def update_champion_bought(request):
     resource = resource.split('-')
 
     if len(resource) == 3:
+        cost = int(resource[2]) - 1
         if resource[0] == 'inc':
-            champions_bought_by_cost[int(resource[2]) - 1] = champions_bought_by_cost[ int(resource[2]) - 1] + 1
             starting_cost = get_starting_stock_of_cost(int(resource[2]))
-            if champions_bought_by_cost[int(resource[2]) - 1] > starting_cost:
-                champions_bought_by_cost[int(resource[2]) - 1] = starting_cost
+            if champions_bought_by_cost[cost] >= starting_cost:
+                champions_bought_by_cost[cost] = starting_cost
                 return HttpResponse("La limite est de " + str(starting_cost) + " pour ce coût", status=416)
+            champions_bought_by_cost[cost] = champions_bought_by_cost[cost] + 1
         elif resource[0] == 'dec':
-            champions_bought_by_cost[int(resource[2]) - 1] = champions_bought_by_cost[int(resource[2]) - 1] - 1
-            if champions_bought_by_cost[int(resource[2]) - 1] < 0:
-                champions_bought_by_cost[int(resource[2]) - 1] = 0
+            if champions_bought_by_cost[cost] <= 0:
+                champions_bought_by_cost[cost] = 0
                 return HttpResponse("", status=416)
-    updateAllSelectedChamp(selected_champions, 4, champions_bought_by_cost)
+            champions_bought_by_cost[cost] = champions_bought_by_cost[cost] - 1
+    updateAllSelectedChamp(selected_champions, level, champions_bought_by_cost)
     return JsonResponse({'cost': resource[2], 'value': str(champions_bought_by_cost[int(resource[2]) - 1])}, status=200)
+
 
 def champion_in_team_update(request):
     global selected_champions
+    global champions_bought_by_cost
     resource = request.GET.get('name')
     resource = resource.split('-')
 
@@ -91,39 +97,47 @@ def champion_in_team_update(request):
         champion = next((champion for champion in selected_champions if champion.name == resource[2]), None)
         if champion is not None:
             if resource[0] == 'inc':
-                if get_starting_stock_of_cost(champion.cost) - champion.playerCount - champion.otherCount > 0:
+                if (get_starting_stock_of_one_champion_by_cost(champion.cost) - champion.playerCount - champion.otherCount) > 0:
                     champion.playerCount += 1
+                    champions_bought_by_cost[champion.cost - 1] += 1
                 else:
                     return HttpResponse("", status=416)
             elif resource[0] == 'dec':
                 if champion.playerCount != 0:
                     champion.playerCount -= 1
+                    champions_bought_by_cost[champion.cost - 1] -= 1
                 else:
                     return HttpResponse("", status=416)
 
-    updateAllSelectedChamp(selected_champions, 4, champions_bought_by_cost)
-    return JsonResponse({'name': resource[2], 'value': champion.playerCount}, status=200)
+            updateAllSelectedChamp(selected_champions, level, champions_bought_by_cost)
+            return JsonResponse({'name': resource[2], 'value': champion.playerCount, 'cost': champion.cost, 'costValue': champions_bought_by_cost[champion.cost - 1]}, status=200)
+    return HttpResponse("", status=400)
 
 def champion_in_enemies_update(request):
     global selected_champions
-
+    global champions_bought_by_cost
     resource = request.GET.get('name')
     resource = resource.split('-')
     if len(resource) == 3:
         champion = next((champion for champion in selected_champions if champion.name == resource[2]), None)
         if champion is not None:
             if resource[0] == 'inc':
-                if get_starting_stock_of_cost(champion.cost) - champion.playerCount - champion.otherCount > 0:
+                if (get_starting_stock_of_one_champion_by_cost(champion.cost) - champion.playerCount - champion.otherCount) > 0:
                     champion.otherCount += 1
+                    champions_bought_by_cost[champion.cost - 1] += 1
                 else:
                     return HttpResponse("", status=416)
             elif resource[0] == 'dec':
                 if champion.otherCount != 0:
                     champion.otherCount -= 1
+                    champions_bought_by_cost[champion.cost - 1] -= 1
                 else:
                     return HttpResponse("", status=416)
-    updateAllSelectedChamp(selected_champions, 4, champions_bought_by_cost)
-    return JsonResponse({'name': resource[2], 'value': champion.otherCount}, status=200)
+            updateAllSelectedChamp(selected_champions, level, champions_bought_by_cost)
+            return JsonResponse({'name': resource[2], 'value': champion.otherCount,
+                                 'cost': champion.cost, 'costValue': champions_bought_by_cost[champion.cost - 1]},
+                                status=200)
+    return HttpResponse("", status=400)
 
 def get_selected_champ(request):
     global selected_champions
@@ -136,4 +150,19 @@ def json_example(request):
     context = {"categories": [75,25,0,0,0]}
     return render(request, 'app/graphStats.html', context=context)
 
-
+def update_level(request):
+    global level
+    state = request.GET.get('state')
+    if state == 'inc':
+        if level < 9:
+            level = level + 1
+        else:
+            level = 9
+    elif state == 'dec':
+        if level > 1:
+            level = level - 1
+        else:
+            level = 1
+    updateAllSelectedChamp(selected_champions, level, champions_bought_by_cost)
+    drop_rates = get_all_drop_rates_by_level(level)
+    return JsonResponse({"level": level,"drop_rate": drop_rates}, status=200)
