@@ -17,15 +17,14 @@ class SelectedChampion(Champion):
         # stockSameCostRemaining => le nombre de perso du meme cout restant
         # stockAllRemaining => le nombre de perso restant
 
-        # TODO costDropRate => récuperer le pourcentage d'obtenir les heros du cout => self.cost
-        # TODO avoir le stock de départ du personnage
-        startingStock = self.getStartingStock(self)
-        costDropRate = self.getCostDropRate(self, playerLevel)
-
+        startingStock = self.getStartingStock()
+        costDropRate = self.getCostDropRate(playerLevel)
 
         selectedChampionRemaining = startingStock - (self.otherCount + self.playerCount)
+
         self.dropRateOfSameCost = selectedChampionRemaining * 100 / stockSameCostRemaining
-        self.dropRateOfAll = self.dropRateOfSameCost * costDropRate
+        self.dropRateOfAll = self.dropRateOfSameCost * (costDropRate)
+
 
     def getStartingStock(self):
         data = edict(FileManager())

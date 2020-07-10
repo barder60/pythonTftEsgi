@@ -124,7 +124,7 @@
             },
             success: function (data) {
                 var inserted_champion = JSON.parse(data["inserted_champion"]);
-                console.log(inserted_champion)
+                loadGraph()
                 $("#list-selected-champions").append(
                     '<li class="list-group-item" id="row-' + inserted_champion['name'] + '">' +
                     '                        <div class="row">' +
@@ -169,6 +169,7 @@
                 'name': e.target.id
             },
             success: function (data) {
+                loadGraph()
                 id = "cost-" + data.cost + "-value"
                 document.getElementById(id).innerHTML = data.value;
             },
@@ -185,6 +186,7 @@
                 'name': e.target.id
             },
             success: function (data) {
+                loadGraph()
                 id ="number-inEnemies-"+data.name
                 document.getElementById(id).innerHTML = data.value;
             },
@@ -201,6 +203,7 @@
                 'name': name
             },
             success: function (data) {
+                loadGraph()
                 id ="number-inEnemies-"+data.name
                 document.getElementById(id).innerHTML = data.value;
             },
@@ -223,6 +226,7 @@
                 'name': e.target.id
             },
             success: function (data) {
+                loadGraph()
                 id = "number-inTeam-"+data.name;
                 document.getElementById(id).innerHTML = data.value;
             },
@@ -239,6 +243,7 @@
                 'name': name
             },
             success: function (data) {
+                loadGraph()
                 id ="number-inTeam-"+data.name
                 document.getElementById(id).innerHTML = data.value;
             },
@@ -258,6 +263,7 @@
                 'reset': removeSelectedChamp
             },
             success: function (data) {
+                loadGraph()
                 let rowToDelete = document.getElementById("row-" + championName);
                 document.getElementById("list-selected-champions").removeChild(rowToDelete)
                 console.log(data)
@@ -269,32 +275,68 @@
     }
     </script>
     <script src="https://code.highcharts.com/highcharts.src.js"></script>
-  <script>
-    Highcharts.chart('graph', {
-        chart: {
-            type: 'column'
-        },
-        title: {
-            text: 'Probabilité d`obtenir chaque champion de ma team en 1 roll'
-        },
-        xAxis: {
-            categories: ['blitzcrank','cassio'],
-            crosshair: true
-        },
-        yAxis: {min: 0, max:100,tickInterval: 25,
-              title: {
-                  text: "pourcentage"
-              },
-              labels: {
-                  format: '{value}%',
-              }
 
-        },
-        series: [{
-            name: 'blitzcrank',
-            data: [25]
-        }]
-    });
+  <script>
+  function loadGraph(){
+      $.ajax({
+            url: 'GetselectedChamp',
+            success: function (data) {
+                let selectedChampions = data.selected_champions
+                if(!Array.isArray(selectedChampions)){
+                    selectedChampions = [selectedChampions]
+                }
+
+                let allNameChamp = []
+                let allDropRateChamp = []
+                selectedChampions.forEach((e)=>{
+                    allNameChamp.push(e.name)
+                    allDropRateChamp.push(e.dropRateOfAll)
+                })
+                console.log(selectedChampions)
+                console.log(allDropRateChamp)
+
+
+                $('#graph').highcharts({
+                    chart: {
+                        type: 'column'
+                    },
+                    title: {
+                        text: 'Les probabilités de mes unités'
+                    },
+                    subtitle: {
+                        text: 'probabilités sur une seule roll'
+                    },
+                    xAxis: {
+                        categories: allNameChamp,
+                        crosshair: true
+                    },
+                    yAxis: {min: 0, max:100,tickInterval: 25,
+                              title: {
+                                  text: "title"
+                              },
+                              labels: {
+                                  format: '{value}%',
+                              }
+                          },
+                    plotOptions: {
+                        column: {
+                            pointPadding: 0.2,
+                            borderWidth: 0
+                        }
+                    },
+                    series: [{
+                        name: 'pourcentage',
+                        data: allDropRateChamp,
+                    }]
+                })
+            },
+            error: function (response) {
+
+            }
+        })
+
+  }
+
   </script>
 
 {% endblock %}

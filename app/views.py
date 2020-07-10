@@ -8,6 +8,7 @@ from .services.championsService import addSelectedChampions, can_add_selected_ch
 import os
 
 from app.utils.ChampionUtils import parseChampionJson, get_starting_stock_of_cost
+from .utils.ChampionUtils import updateAllSelectedChamp
 
 champions = parseChampionJson(os.getcwd() + '/ressources/champions.json')
 selected_champions = []
@@ -37,12 +38,13 @@ def new_selected_champion(request):
     if not can_add_selected_champion(selected_champions, name):
         return JsonResponse({}, status=401)
 
+
     for champ in champions :
         if name == champ.name :
             addSelectedChampions(selected_champions, champ)
 
+    updateAllSelectedChamp(selected_champions, 4, champions_bought_by_cost)
     inserted_champion = [x for x in selected_champions if x.name == name]
-
     return JsonResponse({"inserted_champion": json.dumps(inserted_champion[0].__dict__)}, status=200)
 
 
@@ -56,6 +58,7 @@ def remove_selected_champion(request):
     if reset:
         champions_bought_by_cost = reset_champion_remaining(champions_bought_by_cost, champion_to_remove)
     selected_champions = [x for x in selected_champions if x != champion_to_remove]
+    updateAllSelectedChamp(selected_champions, 4, champions_bought_by_cost)
     return JsonResponse({'cost': champion_to_remove.cost, 'value': str(champions_bought_by_cost[champion_to_remove.cost - 1])}, status=200)
 
 
@@ -76,7 +79,7 @@ def update_champion_bought(request):
             if champions_bought_by_cost[int(resource[2]) - 1] < 0:
                 champions_bought_by_cost[int(resource[2]) - 1] = 0
                 return HttpResponse("", status=416)
-
+    updateAllSelectedChamp(selected_champions, 4, champions_bought_by_cost)
     return JsonResponse({'cost': resource[2], 'value': str(champions_bought_by_cost[int(resource[2]) - 1])}, status=200)
 
 def champion_in_team_update(request):
@@ -98,11 +101,12 @@ def champion_in_team_update(request):
                 else:
                     return HttpResponse("", status=416)
 
-
+    updateAllSelectedChamp(selected_champions, 4, champions_bought_by_cost)
     return JsonResponse({'name': resource[2], 'value': champion.playerCount}, status=200)
 
 def champion_in_enemies_update(request):
     global selected_champions
+
     resource = request.GET.get('name')
     resource = resource.split('-')
     if len(resource) == 3:
@@ -118,9 +122,18 @@ def champion_in_enemies_update(request):
                     champion.otherCount -= 1
                 else:
                     return HttpResponse("", status=416)
-
+    updateAllSelectedChamp(selected_champions, 4, champions_bought_by_cost)
     return JsonResponse({'name': resource[2], 'value': champion.otherCount}, status=200)
+
+def get_selected_champ(request):
+    global selected_champions
+    allSelectedChampJson = []
+    for champions in selected_champions:
+        allSelectedChampJson.append(champions.__dict__)
+    return JsonResponse({"selected_champions":allSelectedChampJson}, status=200)
 
 def json_example(request):
     context = {"categories": [75,25,0,0,0]}
     return render(request, 'app/graphStats.html', context=context)
+
+

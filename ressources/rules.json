@@ -1,5 +1,6 @@
 {
     "champCounter":[29,22,18,12,10],
+    "quantity": [377,286,234,120,80],
     "statsByLevel":[ {
         "level":1,
         "stats":[100,0,0,0,0]

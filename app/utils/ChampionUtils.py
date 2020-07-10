@@ -2,6 +2,8 @@ import json
 from ..project_models.champion import Champion
 from easydict import EasyDict as edict
 from .fileManager import FileManager
+from ..project_models.selectedChampion import SelectedChampion
+
 
 
 def parseChampionJson(path):
@@ -20,11 +22,15 @@ def parseChampionJson(path):
 
     return champions
 
+def updateAllSelectedChamp(selectedChampions,levelPlayer,championBought):
+    for champion in selectedChampions:
+        champion.updateDropRate(levelPlayer,get_starting_stock_of_cost(champion.cost) - championBought[champion.cost - 1])
 
 def get_starting_stock_of_cost(cost):
     data = edict(FileManager())
     with open(data.json.rules, "r") as json_file:
         data_rules = json.load(json_file)
         champ_counter_list = edict(data_rules)
+
         # TODO : prevoir erreur de retour pour raison inconnu
-        return champ_counter_list.champCounter[cost - 1]
+        return champ_counter_list.champCounter[cost - 1] * champ_counter_list.quantity[cost - 1]
